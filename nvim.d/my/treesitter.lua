@@ -5,7 +5,7 @@ if not ok then
 end
 
 configs.setup({
-  -- Only install what you actually use
+  -- Only install what is necessary
   ensure_installed = {
     "lua", "vim", "vimdoc", "query",
     "bash",
@@ -30,7 +30,7 @@ configs.setup({
 
   indent = {
     enable = true,
-    disable = { "javascript" }, -- keep your original note
+    disable = { "javascript" }, -- keep  original note
   },
 
   playground = {
