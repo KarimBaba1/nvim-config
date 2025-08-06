@@ -1,39 +1,38 @@
-local status_ok, nvim_tree = pcall(require, "nvim-tree")
-if not status_ok then
-  return
-end
+-- ~/.config/nvim/nvim.d/my/explorer.lua
+local ok_tree, nvim_tree = pcall(require, "nvim-tree")
+if not ok_tree then return end
 
-local lib = require("nvim-tree.lib")
-local view = require("nvim-tree.view")
-local open_file = require('nvim-tree.actions.node.open-file')
+local ok_api, api = pcall(require, "nvim-tree.api")
+if not ok_api then return end
 
 -- https://github.com/nvim-tree/nvim-tree.lua/wiki/Migrating-To-on_attach
 local function on_attach(bufnr)
-  local api = require('nvim-tree.api')
-
-  local function opts(desc)
-    return { desc = 'nvim-tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+local function opts(desc)
+    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
-  -- vim.keymap.set('n', '>',     api.node.navigate.sibling.next,        opts('Next Sibling'))
 
-  -- R: reload, a: add, d: del, r: rename, o/x: open/close folder
-  -- t: open in tab, q: close
-  vim.keymap.set('n', '<c-t>', api.tree.close, opts('Close'))
-  vim.keymap.set('n', 'x', api.node.navigate.parent_close, opts('Close Directory'))
-  local open = function()
-    local node = lib.get_node_at_cursor()
-    if node.nodes ~= nil then
-      lib.expand_or_collapse(node)
+  -- Close the tree
+  vim.keymap.set("n", "<C-t>", api.tree.close, opts("Close"))
+
+  -- Close parent directory
+  vim.keymap.set("n", "x", api.node.navigate.parent_close, opts("Close Directory"))
+
+  -- Open file or toggle dir; close the tree after opening a file
+  local function open_under_cursor()
+    local node = api.tree.get_node_under_cursor()
+    if node and (node.type == "directory" or node.nodes ~= nil) then
+      api.node.open.edit() -- expand/collapse directory
     else
-      open_file.fn("edit", node.absolute_path)
-      view.close()
+      api.node.open.edit() -- open file in current window
+      api.tree.close()
     end
   end
-  vim.keymap.set('n', '<c-j>', open, opts('Toggle directory or edit file'))
-  vim.keymap.set('n', 'o', open, opts('Toggle directory or edit file'))
+
+  vim.keymap.set("n", "<C-j>", open_under_cursor, opts("Toggle dir or open file"))
+  vim.keymap.set("n", "o",     open_under_cursor, opts("Toggle dir or open file"))
 end
 
-nvim_tree.setup {
+nvim_tree.setup({
   on_attach = on_attach,
   auto_reload_on_write = true,
   disable_netrw = true,
@@ -41,10 +40,9 @@ nvim_tree.setup {
   hijack_netrw = true,
   hijack_unnamed_buffer_when_opening = false,
   sort_by = "name",
-  update_cwd = false,
+  update_cwd = false, -- ok to keep; optional in newer releases
   view = {
     width = 100,
-    --[[ height = 30, ]]
     side = "left",
     number = false,
     relativenumber = false,
@@ -56,16 +54,11 @@ nvim_tree.setup {
   },
   diagnostics = {
     enable = true,
-    icons = {
-      hint = "",
-      info = "",
-      warning = "",
-      error = "",
-    },
+    icons = { hint = "", info = "", warning = "", error = "" },
   },
   update_focused_file = {
     enable = true,
-    update_cwd = true,
+    update_cwd = true, -- if you later switch to new option names, use `update_root = true`
     ignore_list = {},
   },
   git = {
@@ -73,4 +66,4 @@ nvim_tree.setup {
     ignore = true,
     timeout = 500,
   },
-}
+})

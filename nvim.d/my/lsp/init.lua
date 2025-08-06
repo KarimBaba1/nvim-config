@@ -8,6 +8,9 @@ local ok2, mason = pcall(require, "mason")
 if not ok2 then return end
 
 local ok3, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+
+local capabilities = cmp_nvim_lsp.default_capabilities()
+
 if not ok3 then return end
 
 local ok4, null_ls = pcall(require, "null-ls")
@@ -20,7 +23,7 @@ if not ok5 then return end
 
 mason.setup()
 masonlsp.setup {
-  ensure_installed = { "eslint", "bashls", "pyright" },
+ensure_installed = { "eslint", "bashls", "pyright" },
 }
 
 require("lspconfig").eslint.setup {}
@@ -30,19 +33,20 @@ require("lspconfig").bashls.setup {}
 
 -- pip install ruff_lsp
 -- https://github.com/astral-sh/ruff-lsp
-require("lspconfig").ruff_lsp.setup {
-  on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			-- vim.api.nvim_create_autocmd("BufWritePre", {
-			-- 	group = augroup,
-			-- 	buffer = bufnr,
-			-- 	callback = function()
-			-- 		vim.lsp.buf.format()
-			-- 	end,
-			-- })
-		end
-	end,
+require("lspconfig").ruff.setup {
+capabilities = capabilites,
+on_attach = function(client, bufnr)
+  if client.supports_method("textDocument/formatting") then
+    vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+    -- vim.api.nvim_create_autocmd("BufWritePre", {
+    -- 	group = augroup,
+    -- 	buffer = bufnr,
+    -- 	callback = function()
+    -- 		vim.lsp.buf.format()
+    -- 	end,
+    -- })
+  end
+end,
 }
 
 -- local on_attach = function(client, bufnr)
@@ -111,70 +115,70 @@ require("lspconfig").ruff_lsp.setup {
 -- end)
 
 local signs = {
-  { name = "DiagnosticSignError", text = "" },
-  { name = "DiagnosticSignWarn", text = "" },
-  { name = "DiagnosticSignHint", text = "" },
-  { name = "DiagnosticSignInfo", text = "" },
+{ name = "DiagnosticSignError", text = "" },
+{ name = "DiagnosticSignWarn", text = "" },
+{ name = "DiagnosticSignHint", text = "" },
+{ name = "DiagnosticSignInfo", text = "" },
 }
 
 for _, sign in ipairs(signs) do
-  vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
+vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
 end
 
 vim.diagnostic.config({
-  update_in_insert = false,
-  severity_sort = true,
-  float = {
-    focusable = false,
-    style = "minimal",
-    border = "rounded",
-    source = "always",
-    header = "",
-    prefix = "",
-  },
+update_in_insert = false,
+severity_sort = true,
+float = {
+  focusable = false,
+  style = "minimal",
+  border = "rounded",
+  source = "always",
+  header = "",
+  prefix = "",
+},
 })
 
 local lsp_is_on = true
 
 _G.turn_off_lsp = function()
-  lsp_is_on = false
-  vim.diagnostic.config {
-    virtual_text = false,
-    signs = false,
-    underline = false,
-  }
+lsp_is_on = false
+vim.diagnostic.config {
+  virtual_text = false,
+  signs = false,
+  underline = false,
+}
 end
 
 _G.turn_on_lsp = function()
-  lsp_is_on = true
-  vim.diagnostic.config({
-    virtual_text = {
-      source = "always",
-      prefix = '▎',
-    },
-    signs = {
-      active = signs,
-    },
-    underline = true,
-  })
+lsp_is_on = true
+vim.diagnostic.config({
+  virtual_text = {
+    source = "always",
+    prefix = '▎',
+  },
+  signs = {
+    active = signs,
+  },
+  underline = true,
+})
 end
 
 _G.toggle_lsp = function()
-  if lsp_is_on == true then
-    _G.turn_off_lsp()
-  else
-    _G.turn_on_lsp()
-  end
+if lsp_is_on == true then
+  _G.turn_off_lsp()
+else
+  _G.turn_on_lsp()
+end
 end
 
 _G.turn_on_lsp()
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-  border = "rounded",
+border = "rounded",
 })
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-  border = "rounded",
+border = "rounded",
 })
 
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
@@ -183,9 +187,9 @@ local formatting = null_ls.builtins.formatting
 local diagnostics = null_ls.builtins.diagnostics
 
 null_ls.setup {
-  debug = false,
-  sources = {
-    formatting.prettier.with { extra_args = { } },
+debug = false,
+sources = {
+formatting.prettierd.with { extra_args = { } },
     -- formatting.black.with { extra_args = { "--fast" } },
     -- formatting.yapf,
     formatting.stylua,

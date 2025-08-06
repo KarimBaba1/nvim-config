@@ -14,7 +14,7 @@ require "my.lsp"
 require "my.treesitter"
 require "my.comment"
 require "my.git"
-require "my.explorer"
+--pcall(require "my.explorer")
 require "my.statusline"
 require "my.tabline"
 vim.cmd "source ~/.config/nvim/lua/autocmd.vim"
