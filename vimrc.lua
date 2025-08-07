@@ -14,9 +14,14 @@ require "my.lsp"
 require "my.treesitter"
 require "my.comment"
 require "my.git"
---pcall(require "my.explorer")
+require "my.whichkey"
+require "my.explorer"
 require "my.statusline"
 require "my.tabline"
 vim.cmd "source ~/.config/nvim/lua/autocmd.vim"
 vim.cmd "source ~/.config/nvim/lua/tmux.vim"
-require "my.whichkey"
+require'nvim-web-devicons'.setup {
+  override = {},
+  default = true,
+}
+
